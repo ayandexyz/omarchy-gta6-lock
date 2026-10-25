@@ -2,9 +2,7 @@
 
 Omarchy's lock screen, dressed up for the GTA VI theme. A drop-in replacement for the built-in `omarchy.lock` plugin.
 
-[![Lock, a wrong password, then unlock](media/demo.gif)](media/demo.mp4)
-
-<sub>Lock → wrong password → unlock, recorded with `omarchy-shell lock demo`. Click for the [full-quality MP4](media/demo.mp4).</sub>
+▶ **[Watch the demo](https://github.com/dbohry/omarchy-gta6-lock/releases/download/v1.0.0/demo.mp4)**: lock → wrong password → unlock, recorded with `omarchy-shell lock demo` ([GIF version](https://github.com/dbohry/omarchy-gta6-lock/releases/download/v1.0.0/demo.gif), both attached to the [v1.0.0 release](https://github.com/dbohry/omarchy-gta6-lock/releases/tag/v1.0.0)).
 
 | Lock | Wrong password | Unlock |
 |---|---|---|
