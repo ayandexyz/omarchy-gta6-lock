@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "gta6-lock",
+  "name": "GTA 6 Lock",
+  "version": "1.0.0",
+  "author": "morgoth",
+  "description": "Omarchy lock screen with a GTA VI neon sweep and wanted-star password mask.",
+  "omarchy": {
+    "capabilities": [
+      "authentication"
+    ],
+    "clonedFrom": "omarchy.lock"
+  },
+  "kinds": [
+    "service"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}
