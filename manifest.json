@@ -3,8 +3,9 @@
   "id": "gta6-lock",
   "name": "GTA 6 Lock",
   "version": "1.0.0",
-  "author": "morgoth",
-  "description": "Omarchy lock screen with a GTA VI neon sweep and wanted-star password mask.",
+  "author": "Daniel Bohry",
+  "license": "MIT",
+  "description": "Omarchy lock screen for the GTA VI theme: neon sweep, mission cards, wanted-star password mask and a BUSTED card on a wrong password.",
   "omarchy": {
     "capabilities": [
       "authentication"

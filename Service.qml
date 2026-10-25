@@ -340,18 +340,20 @@ Item {
     exclusionMode: ExclusionMode.Ignore
 
     LockView {
+      id: previewView
       anchors.fill: parent
       backgroundPath: root.backgroundPath
       backgroundVersion: root.backgroundVersion
       fingerprintConfigured: root.fingerprintConfigured
       authenticatingPassword: false
-      failureMessage: ""
-      failedAttempts: 0
+      failureMessage: root.demoFailureMessage
+      failedAttempts: root.demoFailedAttempts
       inputEnabled: false
       loadBackground: root.previewVisible
-      passwordText: ""
+      passwordText: root.demoText
       animated: root.animatedTheme
       active: root.previewVisible
+      unlocking: root.demoUnlocking
     }
 
     MouseArea {
@@ -395,6 +397,81 @@ Item {
     onError: function(error) {
       root.fingerprintAuthenticating = false
       if (root.lockRequested && root.fingerprintConfigured) fingerprintRetryTimer.restart()
+    }
+  }
+
+  // Recording demo: plays a lock, a wrong password and an unlock on the preview
+  // overlay. It never touches PAM or the session lock.
+  property string demoText: ""
+  property int demoFailedAttempts: 0
+  property string demoFailureMessage: ""
+  property bool demoUnlocking: false
+  property var demoSteps: []
+
+  function startDemo() {
+    var steps = []
+    function wait(ms) { steps.push({ delay: ms, run: null }) }
+    function type(count) {
+      for (var i = 0; i < count; i++) {
+        steps.push({ delay: 160, run: function() {
+          root.demoFailureMessage = ""
+          root.demoText += "x"
+        } })
+      }
+    }
+
+    demoTimer.stop()
+    demoText = ""
+    demoFailedAttempts = 0
+    demoFailureMessage = ""
+    demoUnlocking = false
+
+    steps.push({ delay: 0, run: function() {
+      root.refreshBackground()
+      root.previewVisible = true
+    } })
+    wait(2600)
+    type(8)
+    steps.push({ delay: 450, run: function() {
+      previewView.lastSubmittedLength = root.demoText.length
+      root.demoText = ""
+      root.demoFailedAttempts += 1
+      root.demoFailureMessage = "Authentication failed (" + root.demoFailedAttempts + ")"
+    } })
+    wait(2300)
+    type(10)
+    steps.push({ delay: 450, run: function() {
+      root.demoText = ""
+      root.demoUnlocking = true
+    } })
+    steps.push({ delay: 1100, run: function() {
+      root.previewVisible = false
+      root.demoUnlocking = false
+      root.demoFailedAttempts = 0
+      root.demoFailureMessage = ""
+    } })
+
+    demoSteps = steps
+    demoTimer.next()
+  }
+
+  Timer {
+    id: demoTimer
+    repeat: false
+    property var pending: null
+
+    function next() {
+      var steps = root.demoSteps
+      if (steps.length === 0) return
+      pending = steps[0]
+      root.demoSteps = steps.slice(1)
+      interval = Math.max(1, pending.delay)
+      restart()
+    }
+
+    onTriggered: {
+      if (pending && pending.run) pending.run()
+      next()
     }
   }
 
@@ -608,6 +685,11 @@ Item {
 
     function hidePreview(): string {
       root.previewVisible = false
+      return "ok"
+    }
+
+    function demo(): string {
+      root.startDemo()
       return "ok"
     }
   }
