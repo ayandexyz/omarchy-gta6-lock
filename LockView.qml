@@ -31,6 +31,13 @@ Item {
   property real fieldOpacity: 1
   property real glowStrength: 0
   property real sweepProgress: 0
+  property string cardTitle: ""
+  property string cardSubtitle: ""
+  property real cardScale: 1
+  property real cardOpacity: 0
+  readonly property color cardGold: "#ffc46b"
+  property color cardColor: cardGold
+  property real backdropSaturation: 0
   readonly property color neonA: Commons.Color.accent
   readonly property color neonB: "#c77dff"
   // Wanted stars shrink to fit once the password outgrows the field, like the dots.
@@ -50,12 +57,42 @@ Item {
     flashAnim.stop()
     starFlashing = false
     flashStep = 0
+    if (bustedAnim.running) {
+      bustedAnim.stop()
+      cardOpacity = 0
+      backdropSaturation = 0
+    }
   }
 
+  // A wrong password gets the stars flashing and a BUSTED card over a
+  // drained, grey wallpaper.
   onFailedAttemptsChanged: {
     if (!animated || failedAttempts === 0 || lastSubmittedLength === 0) return
+    if (introAnim.running) introAnim.complete()
     flashStarCount = lastSubmittedLength
     flashAnim.restart()
+    bustedAnim.restart()
+  }
+
+  ParallelAnimation {
+    id: bustedAnim
+    SequentialAnimation {
+      PropertyAction { target: root; property: "cardTitle"; value: "BUSTED" }
+      PropertyAction { target: root; property: "cardSubtitle"; value: "Wrong password" }
+      PropertyAction { target: root; property: "cardColor"; value: root.flashRed }
+      PropertyAction { target: root; property: "cardOpacity"; value: 0 }
+      ParallelAnimation {
+        NumberAnimation { target: root; property: "cardScale"; from: 2.2; to: 1; duration: 260; easing.type: Easing.OutBack }
+        NumberAnimation { target: root; property: "cardOpacity"; from: 0; to: 1; duration: 160 }
+      }
+      PauseAnimation { duration: 1100 }
+      NumberAnimation { target: root; property: "cardOpacity"; to: 0; duration: 300; easing.type: Easing.InQuad }
+    }
+    SequentialAnimation {
+      NumberAnimation { target: root; property: "backdropSaturation"; to: -1; duration: 200; easing.type: Easing.OutQuad }
+      PauseAnimation { duration: 1060 }
+      NumberAnimation { target: root; property: "backdropSaturation"; to: 0; duration: 400; easing.type: Easing.InOutQuad }
+    }
   }
 
   SequentialAnimation {
@@ -130,6 +167,8 @@ Item {
     fieldOpacity = 1
     glowStrength = 0
     sweepProgress = 0
+    cardOpacity = 0
+    backdropSaturation = 0
   }
 
   function playIntro() {
@@ -179,15 +218,51 @@ Item {
       NumberAnimation { target: root; property: "glowStrength"; to: 1; duration: 250; easing.type: Easing.OutQuad }
       NumberAnimation { target: root; property: "glowStrength"; to: 0.35; duration: 600; easing.type: Easing.InOutQuad }
     }
+    SequentialAnimation {
+      PropertyAction { target: root; property: "cardTitle"; value: "LOCKED" }
+      PropertyAction { target: root; property: "cardSubtitle"; value: "Session secured" }
+      PropertyAction { target: root; property: "cardColor"; value: root.cardGold }
+      PropertyAction { target: root; property: "cardOpacity"; value: 0 }
+      PauseAnimation { duration: 150 }
+      ParallelAnimation {
+        NumberAnimation { target: root; property: "cardScale"; from: 2.2; to: 1; duration: 260; easing.type: Easing.OutBack }
+        NumberAnimation { target: root; property: "cardOpacity"; from: 0; to: 1; duration: 160 }
+      }
+      PauseAnimation { duration: 1100 }
+      ParallelAnimation {
+        NumberAnimation { target: root; property: "cardOpacity"; to: 0; duration: 350; easing.type: Easing.InQuad }
+        NumberAnimation { target: root; property: "cardScale"; to: 0.94; duration: 350; easing.type: Easing.InQuad }
+      }
+    }
   }
 
-  // Unlock: the field pops and flares, the blur clears, and the band sweeps
-  // across again before the service releases the lock.
+  // Unlock: the field pops and flares, the WELCOME BACK card slams in, the
+  // blur clears, and the band sweeps across again before the service releases
+  // the lock. Keep the total in step with unlockAnimationTimer in Service.qml.
   ParallelAnimation {
     id: outroAnim
-    NumberAnimation { target: root; property: "blurAmount"; to: 0; duration: 550; easing.type: Easing.InOutCubic }
-    NumberAnimation { target: root; property: "backdropScale"; to: 1.04; duration: 600; easing.type: Easing.InOutQuad }
-    NumberAnimation { target: root; property: "sweepProgress"; from: 0; to: 1; duration: 550; easing.type: Easing.InOutQuad }
+    SequentialAnimation {
+      PauseAnimation { duration: 250 }
+      NumberAnimation { target: root; property: "blurAmount"; to: 0; duration: 800; easing.type: Easing.InOutCubic }
+    }
+    NumberAnimation { target: root; property: "backdropScale"; to: 1.04; duration: 1100; easing.type: Easing.InOutQuad }
+    SequentialAnimation {
+      PauseAnimation { duration: 300 }
+      NumberAnimation { target: root; property: "sweepProgress"; from: 0; to: 1; duration: 650; easing.type: Easing.InOutQuad }
+    }
+    SequentialAnimation {
+      PropertyAction { target: root; property: "cardTitle"; value: "WELCOME BACK" }
+      PropertyAction { target: root; property: "cardSubtitle"; value: "Mission passed" }
+      PropertyAction { target: root; property: "cardColor"; value: root.cardGold }
+      PropertyAction { target: root; property: "cardOpacity"; value: 0 }
+      PauseAnimation { duration: 120 }
+      ParallelAnimation {
+        NumberAnimation { target: root; property: "cardScale"; from: 2.2; to: 1; duration: 260; easing.type: Easing.OutBack }
+        NumberAnimation { target: root; property: "cardOpacity"; from: 0; to: 1; duration: 160 }
+      }
+      PauseAnimation { duration: 500 }
+      NumberAnimation { target: root; property: "cardOpacity"; to: 0; duration: 200; easing.type: Easing.InQuad }
+    }
     SequentialAnimation {
       ParallelAnimation {
         NumberAnimation { target: root; property: "fieldScale"; to: 1.06; duration: 140; easing.type: Easing.OutQuad }
@@ -240,6 +315,7 @@ Item {
         blurMax: 128
         blurMultiplier: 1.25
         contrast: -0.08
+        saturation: root.backdropSaturation
       }
     }
 
@@ -273,6 +349,61 @@ Item {
           GradientStop { position: 0.0; color: root.neon(root.neonB, 0) }
           GradientStop { position: 0.7; color: root.neonA }
           GradientStop { position: 1.0; color: "white" }
+        }
+      }
+    }
+
+    // GTA mission card: a dark band with a gold title that slams in on lock
+    // and unlock.
+    Item {
+      anchors.fill: parent
+      visible: root.animated && root.cardOpacity > 0
+      opacity: root.cardOpacity
+
+      Rectangle {
+        width: parent.width
+        height: cardTitleText.font.pixelSize * 2.6
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -parent.height * 0.17
+        gradient: Gradient {
+          GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 0) }
+          GradientStop { position: 0.5; color: Qt.rgba(0, 0, 0, 0.55) }
+          GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0) }
+        }
+      }
+
+      Column {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -parent.height * 0.17
+        scale: root.cardScale
+        spacing: 4
+
+        Text {
+          id: cardTitleText
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: root.cardTitle
+          // Pricedown is the GTA title font, installed in ~/.local/share/fonts.
+          font.family: "Pricedown"
+          font.weight: Font.Black
+          font.pixelSize: Math.round(root.height * 0.09)
+          font.letterSpacing: 1
+          color: root.cardColor
+          style: Text.Outline
+          styleColor: "#0b0612"
+        }
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: root.cardSubtitle
+          font.family: "Pricedown"
+          font.weight: Font.Black
+          font.pixelSize: Math.round(root.height * 0.03)
+          font.letterSpacing: 3
+          font.capitalization: Font.AllUppercase
+          color: "white"
+          style: Text.Outline
+          styleColor: "#0b0612"
         }
       }
     }

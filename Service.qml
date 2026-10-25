@@ -401,7 +401,7 @@ Item {
   // Matches the outro's length in LockView.
   Timer {
     id: unlockAnimationTimer
-    interval: 650
+    interval: 1100
     repeat: false
     onTriggered: root.completeUnlock()
   }
