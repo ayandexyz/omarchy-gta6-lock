@@ -15,7 +15,7 @@ Omarchy's lock screen, dressed up for the GTA VI theme. A drop-in replacement fo
 - **Wanted stars:** each typed character is a wanted star that pops in, instead of a dot.
 - **Busted:** a wrong password turns the wallpaper grey, flashes the stars police red and blue, and slams in a red `BUSTED` card.
 
-The effects only run while the current theme is `gta-vi`. On every other theme it locks and unlocks exactly like the stock plugin.
+The effects only run while the current theme is GTA VI (`gta6` when installed with `omarchy theme install`, or `gta-vi`). On every other theme it locks and unlocks exactly like the stock plugin.
 
 ## Install
 
